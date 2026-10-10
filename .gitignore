@@ -1,0 +1,14 @@
+# Installed packages
+node_modules/
+
+# Private settings
+.env
+.env.*
+!.env.example
+
+# Generated logs
+logs/
+*.log
+
+# Deployment settings
+.vercel/
