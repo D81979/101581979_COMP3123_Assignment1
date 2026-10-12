@@ -1,5 +1,6 @@
 const express = require("express");
 const helmet = require("helmet");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -17,6 +18,9 @@ app.get("/health", (req, res) => {
   });
 });
 
+// Connect the user endpoints
+app.use("/api/v1/user", userRoutes);
+
 // Handle unknown routes
 app.use((req, res) => {
   res.status(404).json({
@@ -31,9 +35,10 @@ app.use((err, req, res, next) => {
 
   res.status(status).json({
     success: false,
-    message: status === 400
-      ? "Invalid request body"
-      : "Internal server error",
+    message:
+      status === 400
+        ? "Invalid request body"
+        : "Internal server error",
   });
 });
 
