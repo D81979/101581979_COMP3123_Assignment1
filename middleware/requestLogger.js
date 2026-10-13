@@ -3,24 +3,26 @@ const logger = require("../utils/logger");
 function requestLogger(req, res, next) {
   const startedAt = Date.now();
 
+  // Capture the path before Express enters a router. Never log query values.
+  const requestPath = req.path.toLowerCase().replace(/\/$/, "");
+  let route = "unmatched-or-blocked";
+  let event = "http_request";
+
+  if (["/api/v1/user/login", "/api/v1/user/signup"].includes(requestPath)) {
+    event = "authentication_attempt";
+    route = requestPath;
+  } else if (requestPath === "/api/v1/emp/employees") {
+    event = "employee_request";
+    route = "/api/v1/emp/employees";
+  } else if (/^\/api\/v1\/emp\/employees\/[^/]+$/.test(requestPath)) {
+    event = "employee_request";
+    route = "/api/v1/emp/employees/:eid";
+  } else if (requestPath === "/health") {
+    route = "/health";
+  }
+
   res.on("finish", () => {
     const status = res.statusCode;
-
-    // Use route templates instead of user-supplied URLs.
-    const route = req.route
-      ? `${req.baseUrl || ""}${req.route.path}`
-      : "unmatched-or-blocked";
-
-    let event = "http_request";
-
-    if (
-      req.path === "/api/v1/user/login" ||
-      req.path === "/api/v1/user/signup"
-    ) {
-      event = "authentication_attempt";
-    } else if (req.path.startsWith("/api/v1/emp/")) {
-      event = "employee_request";
-    }
 
     let outcome = "success";
 

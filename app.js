@@ -1,5 +1,8 @@
+require("dotenv").config();
+
 const express = require("express");
 const helmet = require("helmet");
+const connectDB = require("./config/db");
 
 const userRoutes = require("./routes/userRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
@@ -9,11 +12,33 @@ const logger = require("./utils/logger");
 
 const app = express();
 
+// Vercel forwards the real client IP through its proxy.
+if (process.env.VERCEL) {
+  app.set("trust proxy", 1);
+}
+
 // Add HTTP security headers.
 app.use(helmet());
 
 // Log requests, including rejected ones.
 app.use(requestLogger);
+
+// Vercel can load app.js without running server.js.
+app.use("/api", async (req, res, next) => {
+  try {
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      throw new Error("JWT configuration is invalid");
+    }
+    await connectDB();
+    next();
+  } catch (error) {
+    logger.error("api_initialization_failed");
+    res.status(503).json({
+      success: false,
+      message: "Service temporarily unavailable",
+    });
+  }
+});
 
 // Limit API traffic before reading request bodies.
 app.use("/api", apiLimiter);
