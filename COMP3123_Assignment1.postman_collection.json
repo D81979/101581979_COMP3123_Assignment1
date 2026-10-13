@@ -1,0 +1,974 @@
+{
+  "info": {
+    "_postman_id": "54fc8c1c-b9b6-45ca-bb55-0c554fdcac7f",
+    "name": "COMP3123 Assignment1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58159947",
+    "_collection_link": "https://go.postman.co/collection/58159947-54fc8c1c-b9b6-45ca-bb55-0c554fdcac7f?source=collection_link",
+    "description": "COMP3123 Assignment 1 manual API tests. Set base_url to your local or deployed API (no trailing slash). Test account passwords are fictional assignment credentials. Run Login - Username and Login - User B to automatically fill token variables. Run both Create requests to automatically fill employee IDs before ID/ownership tests. Run Delete Own Employee only after all User A employee checks; recreate User A employee before repeating those checks. Signup returns 409 for existing accounts; use login instead. Authentication allows 10 requests per 15 minutes, so do not run the entire collection as one rapid batch: run authentication tests in separate windows. Run the rate-limit request repeatedly at the end to demonstrate 429. This collection has been statically reviewed; it has not been executed against your server by the reviewer. Existing screenshots remain separate evidence."
+  },
+  "item": [
+    {
+      "name": "Signup - User A",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"user_a\",\n  \"email\": \"user_a@example.com\",\n  \"password\": \"TestUserA@123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/signup",
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "Expected 201 for a new account, or 409 if this test account already exists. In that case continue with Login - Username."
+      },
+      "response": []
+    },
+    {
+      "name": "Signup - Duplicate Username",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"user_a\",\r\n  \"email\": \"another_a@example.com\",\r\n  \"password\": \"TestUserA@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/signup",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Signup - Duplicate Email",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"another_user\",\r\n  \"email\": \"user_a@example.com\",\r\n  \"password\": \"TestUserA@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/signup",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Signup - Invalid Email",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"validation_user\",\r\n  \"email\": \"not-an-email\",\r\n  \"password\": \"TestUserA@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/signup",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Signup - Invalid Password",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"validation_user\",\r\n  \"email\": \"validation_user@example.com\",\r\n  \"password\": \"123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/signup",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Signup - Missing Fields",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/signup",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login - Username",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"user_a\",\r\n  \"password\": \"TestUserA@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  const data = pm.response.json();",
+              "  const value = data.token;",
+              "  if (value) pm.collectionVariables.set(\"token_user_a\", value);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login - Email",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"user_a@example.com\",\r\n  \"password\": \"TestUserA@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  const data = pm.response.json();",
+              "  const value = data.token;",
+              "  if (value) pm.collectionVariables.set(\"token_user_a\", value);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login - Invalid Credentials",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"user_a\",\r\n  \"password\": \"WrongPassword@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login - Missing Credentials",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Missing JWT",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Invalid JWT",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "invalid-token-for-testing",
+              "type": "string"
+            }
+          ]
+        },
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Create - User A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Alex\",\r\n  \"last_name\": \"Taylor\",\r\n  \"email\": \"alex.taylor@example.com\",\r\n  \"position\": \"Junior Developer\",\r\n  \"salary\": 55000,\r\n  \"date_of_joining\": \"2026-10-01\",\r\n  \"department\": \"IT\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  const data = pm.response.json();",
+              "  const value = data.employee._id;",
+              "  if (value) pm.collectionVariables.set(\"employee_id_a\", value);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employees - Get All - User A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Get By ID - User A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees/{{employee_id_a}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Update - User A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Alex\",\r\n  \"last_name\": \"Taylor\",\r\n  \"email\": \"alex.taylor@example.com\",\r\n  \"position\": \"Software Developer\",\r\n  \"salary\": 62000,\r\n  \"date_of_joining\": \"2026-10-01\",\r\n  \"department\": \"IT\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/emp/employees/{{employee_id_a}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Invalid ID",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees/abc"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Not Found",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees/000000000000000000000000"
+      },
+      "response": []
+    },
+    {
+      "name": "Signup - User B",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"user_b\",\r\n  \"email\": \"user_b@example.com\",\r\n  \"password\": \"TestUserB@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/signup",
+        "description": "Expected 201 for a new account, or 409 if this test account already exists. In that case continue with Login - User B."
+      },
+      "response": []
+    },
+    {
+      "name": "Login - User B",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"user_b\",\r\n  \"password\": \"TestUserB@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/login",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  const data = pm.response.json();",
+              "  const value = data.token;",
+              "  if (value) pm.collectionVariables.set(\"token_user_b\", value);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employees - User B Cannot View User A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_b}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees/{{employee_id_a}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - User B Cannot Update User A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_b}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Alex\",\r\n  \"last_name\": \"Taylor\",\r\n  \"email\": \"alex.taylor@example.com\",\r\n  \"position\": \"Software Developer\",\r\n  \"salary\": 70000,\r\n  \"date_of_joining\": \"2026-10-01\",\r\n  \"department\": \"IT\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/emp/employees/{{employee_id_a}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - User B Cannot Delete User A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_b}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees?eid={{employee_id_a}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Create - User B",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_b}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Jamie\",\r\n  \"last_name\": \"Patel\",\r\n  \"email\": \"jamie.patel@example.com\",\r\n  \"position\": \"QA Tester\",\r\n  \"salary\": 58000,\r\n  \"date_of_joining\": \"2026-10-05\",\r\n  \"department\": \"Quality Assurance\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  const data = pm.response.json();",
+              "  const value = data.employee._id;",
+              "  if (value) pm.collectionVariables.set(\"employee_id_b\", value);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employees - User A Cannot View User B",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees/{{employee_id_b}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - User A Cannot Update User B",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Jamie\",\r\n  \"last_name\": \"Patel\",\r\n  \"email\": \"jamie.patel@example.com\",\r\n  \"position\": \"QA Tester\",\r\n  \"salary\": 70000,\r\n  \"date_of_joining\": \"2026-10-05\",\r\n  \"department\": \"Quality Assurance\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/emp/employees/{{employee_id_b}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - User A Cannot Delete User B",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees?eid={{employee_id_b}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Get All - User A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Get All - User B",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_b}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Invalid Salary",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Test\",\r\n  \"last_name\": \"Employee\",\r\n  \"email\": \"test.employee@example.com\",\r\n  \"position\": \"Developer\",\r\n  \"salary\": -100,\r\n  \"date_of_joining\": \"2026-10-01\",\r\n  \"department\": \"IT\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Missing Fields",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Invalid Email",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Test\",\r\n  \"last_name\": \"Employee\",\r\n  \"email\": \"not-an-email\",\r\n  \"position\": \"Developer\",\r\n  \"salary\": 55000,\r\n  \"date_of_joining\": \"2026-10-01\",\r\n  \"department\": \"IT\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Invalid Date",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Test\",\r\n  \"last_name\": \"Employee\",\r\n  \"email\": \"test.employee@example.com\",\r\n  \"position\": \"Developer\",\r\n  \"salary\": 55000,\r\n  \"date_of_joining\": \"2026-02-30\",\r\n  \"department\": \"IT\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Reject Owner Field",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Test\",\r\n  \"last_name\": \"Employee\",\r\n  \"email\": \"test.employee@example.com\",\r\n  \"position\": \"Developer\",\r\n  \"salary\": 55000,\r\n  \"date_of_joining\": \"2026-10-01\",\r\n  \"department\": \"IT\",\r\n  \"user\": \"6acd4a78940031421872cb75\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/emp/employees"
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Delete Own Employee - User A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_user_a}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/api/v1/emp/employees?eid={{employee_id_a}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/health"
+      },
+      "response": []
+    },
+    {
+      "name": "Login - Rate Limit",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"user_a\",\r\n  \"password\": \"WrongPassword@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/v1/user/login",
+        "description": "Manual rate-limit test: send repeatedly until 429. Authentication is limited to 10 requests per 15 minutes, shared with signup/login requests. Run this last; wait for the window to reset before further login tests."
+      },
+      "response": []
+    },
+    {
+      "name": "Login - Malformed JSON",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/v1/user/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Employees - Create Without JWT",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/v1/emp/employees",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"first_name\": \"Test\",\n  \"last_name\": \"Employee\",\n  \"email\": \"test.employee@example.com\",\n  \"position\": \"Developer\",\n  \"salary\": 55000,\n  \"date_of_joining\": \"2026-10-01\",\n  \"department\": \"IT\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token_user_a",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_user_b",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "employee_id_a",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "employee_id_b",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
