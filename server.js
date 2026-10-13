@@ -1,27 +1,42 @@
-// Load private settings before starting
 require("dotenv").config();
 
 const app = require("./app");
 const connectDB = require("./config/db");
+const logger = require("./utils/logger");
 
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   try {
-    // Connect to MongoDB first
-    await connectDB();
+    // Stop early if the JWT secret is missing or too short.
+    if (
+      !process.env.JWT_SECRET ||
+      process.env.JWT_SECRET.length < 32
+    ) {
+      throw new Error("JWT configuration is invalid");
+    }
 
-    // Start the API after the database connects
-    app.listen(PORT, () => {
+    await connectDB();
+    logger.info("database_connected");
+
+    const server = app.listen(PORT, () => {
+      logger.info("server_started", { port: PORT });
       console.log(`Server running at http://localhost:${PORT}`);
     });
+
+    server.on("error", () => {
+      logger.error("server_listen_failed");
+      process.exitCode = 1;
+    });
   } catch (error) {
-    // Keep connection credentials out of the terminal
+    // Keep database credentials out of logs.
+    logger.error("startup_failed");
+
     console.error(
       "Startup failed. Check your .env, Atlas database user, and IP access."
     );
-    console.error("Error type:", error.name);
-    process.exit(1);
+
+    process.exitCode = 1;
   }
 }
 
